@@ -1,0 +1,8 @@
+[package]
+name = "adventus-codicis-mmxxiv"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+anyhow = { version = "1.0.93", features = ["backtrace"] }
+paste = "1.0.9"
