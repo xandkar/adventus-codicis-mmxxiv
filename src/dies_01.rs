@@ -1,6 +1,6 @@
-use std::{collections::HashMap, io::BufRead, ops::Sub};
+use std::{collections::HashMap, io::BufRead, iter};
 
-use anyhow::{anyhow, Context, Result};
+use anyhow::{anyhow, bail};
 
 pub struct Data {
     left: Vec<i32>,
@@ -8,7 +8,7 @@ pub struct Data {
 }
 
 impl Data {
-    pub fn load(input: &std::path::Path) -> Result<Self> {
+    pub fn load(input: &std::path::Path) -> anyhow::Result<Self> {
         let file = std::fs::File::open(input).map_err(|e| {
             anyhow!("Failure to open input file {:?}: {:?}", input, e)
         })?;
@@ -20,35 +20,34 @@ impl Data {
             .map(|(i, l)| (i + 1, l))
         {
             let line = line_result?;
-            // Closure because no .clone()
-            let err = || {
-                anyhow!("bad input line: {line:?}. File={input:?}. Line number={line_number}.")
-            };
-            let mut fields = line.split_whitespace();
-            let n_left: &str = fields.next().ok_or(err())?;
-            let n_right: &str = fields.next().ok_or(err())?;
-            let n_left: i32 = n_left.parse().context(err())?;
-            let n_right: i32 = n_right.parse().context(err())?;
-            left.push(n_left);
-            right.push(n_right);
+            let fields: Vec<i32> = line
+                .split_whitespace()
+                .filter_map(|field| field.parse().ok())
+                .collect();
+            match &fields[..] {
+                [n_left, n_right] => {
+                    left.push(*n_left);
+                    right.push(*n_right);
+                }
+                _ => {
+                    bail!("bad input line: {line:?}. File={input:?}:{line_number}.");
+                }
+            }
         }
         Ok(Self { left, right })
     }
 
-    pub fn solve1(&self) -> Result<i32> {
+    pub fn solve1(&self) -> anyhow::Result<u32> {
         let mut left = self.left.clone();
         let mut right = self.right.clone();
         left.sort();
         right.sort();
-        let total_distance: i32 = left
-            .into_iter()
-            .zip(right.into_iter())
-            .map(|(l, r)| l.sub(r).abs())
-            .sum();
+        let total_distance: u32 =
+            iter::zip(left, right).map(|(l, r)| l.abs_diff(r)).sum();
         Ok(total_distance)
     }
 
-    pub fn solve2(&self) -> Result<i32> {
+    pub fn solve2(&self) -> anyhow::Result<i32> {
         let mut right_hist = HashMap::new();
         for n in &self.right {
             right_hist
@@ -59,10 +58,7 @@ impl Data {
         let similarity_score: i32 = self
             .left
             .iter()
-            .map(|n| {
-                let m = right_hist.get(n).unwrap_or(&0);
-                *n * *m
-            })
+            .map(|n| *n * *right_hist.get(n).unwrap_or(&0))
             .sum();
         Ok(similarity_score)
     }
