@@ -57,5 +57,11 @@ macro_rules! dies {
        }
   };
 }
+
 dies!(_01, 11, 1320851, 31, 26859182);
 dies!(_02, 2, 306, 4, 366);
+
+// XXX 161 is wrong for part 2, since example input should be different,
+//     but this macro doesn't account for it,
+//     so we handle it within the dies_03 module's inner test suite .
+dies!(_03, 161, 188116424, 161, 104245808);
