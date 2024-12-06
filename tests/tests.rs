@@ -66,3 +66,4 @@ dies!(_02, 2, 306, 4, 366);
 //     so we handle it within the dies_03 module's inner test suite .
 dies!(_03, 161, 188116424, 161, 104245808);
 dies!(_04, 18, 2517, 9, 1960);
+dies!(_05, 143, 4662, 123, 5900);
