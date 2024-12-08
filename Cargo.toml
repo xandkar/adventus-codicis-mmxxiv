@@ -6,4 +6,5 @@ edition = "2021"
 [dependencies]
 anyhow = { version = "1.0.93", features = ["backtrace"] }
 paste = "1.0.9"
+rayon = "1.10.0"
 regex = "1.11.1"
